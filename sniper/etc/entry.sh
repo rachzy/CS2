@@ -49,7 +49,7 @@ if [[ $steamcmd_rc != 0 ]]; then
 fi
 
 ## Exit if it was a validation installation and STOPAFTERVALIDATION is enabled
-if [[ $VALIDATE -eq "validate" ]] && [[ $STOPAFTERVALIDATION -eq 1 ]]; then
+if [[ $VALIDATE == "validate" ]] && [[ $STOPAFTERVALIDATION -eq 1 ]]; then
     echo "Validation installation detected and STOPAFTERVALIDATION is enabled, exiting"
     exit 0
 fi
