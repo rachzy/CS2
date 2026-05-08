@@ -103,6 +103,13 @@ fi
 
 # Rewrite Config Files
 
+# 1. Remove previous /game/csgo/cfg/server.cfg
+rm -f "${STEAMAPPDIR}"/game/csgo/cfg/server.cfg
+
+# 2. Copy new /etc/server.cfg to /game/csgo/cfg/server.cfg
+cp /etc/server.cfg "${STEAMAPPDIR}"/game/csgo/cfg/server.cfg
+
+# 3. Rewrite /game/csgo/cfg/server.cfg with the most updated values
 sed -i -e "s/{{SERVER_HOSTNAME}}/${CS2_SERVERNAME}/g" \
        -e "s/{{SERVER_CHEATS}}/${CS2_CHEATS}/g" \
        -e "s/{{SERVER_HIBERNATE}}/${CS2_SERVER_HIBERNATE}/g" \
