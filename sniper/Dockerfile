@@ -14,7 +14,7 @@ ARG STEAMCMDDIR="${HOMEDIR}/steamcmd"
 
 FROM registry.gitlab.steamos.cloud/steamrt/sniper/platform as steamcmd
 
-LABEL maintainer="joedwards32@gmail.com"
+LABEL maintainer="henriqueferreira.fox@gmail.com"
 
 ARG PUID
 ARG PGID
@@ -59,6 +59,7 @@ ENV STEAMAPP=cs2
 ENV STEAMCMDDIR="${STEAMCMDDIR}"
 ENV STEAMAPPDIR="${HOMEDIR}/${STEAMAPP}-dedicated"
 ENV STEAMAPPVALIDATE=0
+ENV STOPAFTERVALIDATION=0
 
 COPY etc/entry.sh "${HOMEDIR}/entry.sh"
 COPY etc/server.cfg "/etc/server.cfg"

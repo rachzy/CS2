@@ -48,6 +48,12 @@ if [[ $steamcmd_rc != 0 ]]; then
     exit $steamcmd_rc
 fi
 
+## Exit if it was a validation installation and STOPAFTERVALIDATION is enabled
+if [[ $VALIDATE -eq "validate" ]] && [[ $STOPAFTERVALIDATION -eq 1 ]]; then
+    echo "Validation installation detected and STOPAFTERVALIDATION is enabled, exiting"
+    exit 0
+fi
+
 # FIX: steamclient.so fix
 mkdir -p ~/.steam/sdk64
 ln -sfT ${STEAMCMDDIR}/linux64/steamclient.so ~/.steam/sdk64/steamclient.so

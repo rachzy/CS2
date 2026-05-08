@@ -1,10 +1,11 @@
-[![Docker Image CI](https://github.com/joedwards32/CS2/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/joedwards32/CS2/actions/workflows/docker-image.yml) [![Docker Build and Publish](https://github.com/joedwards32/CS2/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/joedwards32/CS2/actions/workflows/docker-publish.yml)
+[![Docker Image CI](https://github.com/rachzy/CS2/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/rachzy/CS2/actions/workflows/docker-image.yml) [![Docker Build and Publish](https://github.com/rachzy/CS2/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/rachzy/CS2/actions/workflows/docker-publish.yml)
 
 # What is Counter-Strike 2?
-For over two decades, Counter-Strike has offered an elite competitive experience, one shaped by millions of players from across the globe. And now the next chapter in the CS story is about to begin. This is Counter-Strike 2. 
+
+For over two decades, Counter-Strike has offered an elite competitive experience, one shaped by millions of players from across the globe. And now the next chapter in the CS story is about to begin. This is Counter-Strike 2.
 This Docker image contains the dedicated server of the game.
 
->  [CS2](https://store.steampowered.com/app/730/CounterStrike_2/)
+> [CS2](https://store.steampowered.com/app/730/CounterStrike_2/)
 
 <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg?t=1696011820" alt="logo" width="300"/></img>
 
@@ -12,26 +13,29 @@ This Docker image contains the dedicated server of the game.
 
 ## Available Container Image Repositories
 
-* Docker Hub: `joedwards32/cs2`
-* GitHub: `ghcr.io/joedwards32/cs2`
+- Docker Hub: `rachzy/cs2`
+- GitHub: `ghcr.io/rachzy/cs2`
 
 ## Hosting a simple game server
 
 Running using Docker:
+
 ```console
 $ SRCDS_TOKEN="..." # check https://steamcommunity.com/dev/managegameservers
-$ docker run -d --name=cs2 -e SRCDS_TOKEN="$SRCDS_TOKEN" -p 27015:27015/tcp -p 27015:27015/udp -p 27020:27020/udp joedwards32/cs2
+$ docker run -d --name=cs2 -e SRCDS_TOKEN="$SRCDS_TOKEN" -p 27015:27015/tcp -p 27015:27015/udp -p 27020:27020/udp rachzy/cs2
 ```
 
 Running using a bind mount for data persistence on container recreation:
+
 ```console
 $ mkdir -p $(pwd)/cs2-data
 $ chown 1000:1000 $(pwd)/cs2-data # Makes sure the directory is writeable by the unprivileged container user with uid 1000, known as steam
 $ SRCDS_TOKEN="..." # check https://steamcommunity.com/dev/managegameservers
-$ docker run -d --name=cs2 -e SRCDS_TOKEN="$SRCDS_TOKEN" -v $(pwd)/cs2-data:/home/steam/cs2-dedicated/ -p 27015:27015/tcp -p 27015:27015/udp -p 27020:27020/udp joedwards32/cs2
+$ docker run -d --name=cs2 -e SRCDS_TOKEN="$SRCDS_TOKEN" -v $(pwd)/cs2-data:/home/steam/cs2-dedicated/ -p 27015:27015/tcp -p 27015:27015/udp -p 27020:27020/udp rachzy/cs2
 ```
 
-or using docker-compose, see [examples](https://github.com/joedwards32/CS2/blob/main/examples/docker-compose.yml):
+or using docker-compose, see [examples](https://github.com/rachzy/CS2/blob/main/examples/docker-compose.yml):
+
 ```console
 # Remember to update passwords and SRCDS_TOKEN in your compose file
 $ docker compose --file examples/docker-compose.yml up -d cs2-server
@@ -47,15 +51,16 @@ You must have at least **60GB** of free disk space! See [System Requirements](./
 
 Minimum system requirements are:
 
-* 2 CPUs
-* 2GiB RAM
-* 60GB of disk space for the container or mounted as a persistent volume on `/home/steam/cs2-dedicated/`
-  * Note: More space may be required if you plan to install mods
+- 2 CPUs
+- 2GiB RAM
+- 60GB of disk space for the container or mounted as a persistent volume on `/home/steam/cs2-dedicated/`
+  - Note: More space may be required if you plan to install mods
 
 ## Environment Variables
+
 Feel free to overwrite these environment variables, using -e (--env):
 
-**Note:** `/` characters in Counter-Strike-related environment variables **must be escaped** as `\/` (e. g. `CS2_SERVERNAME="My Server 1\/3` will result in `My Server 1/3` in-game). Otherwise, this may cause unexpected behavior during configuration processing 
+**Note:** `/` characters in Counter-Strike-related environment variables **must be escaped** as `\/` (e. g. `CS2_SERVERNAME="My Server 1\/3` will result in `My Server 1/3` in-game). Otherwise, this may cause unexpected behavior during configuration processing
 
 ### Server Configuration
 
@@ -63,7 +68,7 @@ Feel free to overwrite these environment variables, using -e (--env):
 SRCDS_TOKEN=""              (Game Server Token from https://steamcommunity.com/dev/managegameservers)
 CS2_SERVERNAME="changeme"   (Set the visible name for your private server.)
 CS2_CHEATS=0                (0 - disable cheats, 1 - enable cheats)
-CS2_SERVER_HIBERNATE=0      (Put server in a low CPU state when there are no players. 
+CS2_SERVER_HIBERNATE=0      (Put server in a low CPU state when there are no players.
                              0 - hibernation disabled, 1 - hibernation enabled
                              n.b. hibernation has been observed to trigger server crashes)
 CS2_IP=""                   (CS2 server listening IP address, 0.0.0.0 - all IP addresses on the local machine, empty - IP identified automatically)
@@ -128,7 +133,7 @@ CS2_LOG_HTTP_URL="<endpoint-url>" (This command is used to set URI of a listener
 Support for Steam Workshop is experimental!
 
 ```dockerfile
-CS2_HOST_WORKSHOP_MAP=""         (Steam Workshop Map ID to load on server start)   
+CS2_HOST_WORKSHOP_MAP=""         (Steam Workshop Map ID to load on server start)
 CS2_HOST_WORKSHOP_COLLECTION=""  (Steam Workshop Collection ID to download)
 ```
 
@@ -161,8 +166,8 @@ STEAMAPPVALIDATE=0          (0=skip validation, 1=validate game files)
 
 The container includes two scripts for executing custom actions:
 
-* `/home/steam/cs2-dedicated/pre.sh` is executed before the CS2 server starts
-* `/home/steam/cs2-dedicated/post.sh` is executed after the CS2 server stops
+- `/home/steam/cs2-dedicated/pre.sh` is executed before the CS2 server starts
+- `/home/steam/cs2-dedicated/post.sh` is executed after the CS2 server stops
 
 When using a persient volume mounted at `/home/steam/cs2-dedicated/` you may edit these scripts to perform custom actions, such as enabling metamod.
 
@@ -179,7 +184,7 @@ The default configurations for each game mode are stored in `/home/steam/cs2-ded
 When using a persistent volume mounted at `/home/steam/cs2-dedicated/`, these defaults can be overridden by adding your own settings to `gamemode_competitive_server.cfg`.
 
 ```
-// Game Mode Competitive Server Overrides 
+// Game Mode Competitive Server Overrides
 
 mp_maxrounds	16	// Shorter games
 ```
@@ -192,8 +197,7 @@ The container can be instructed to download a extract a Tar Gzip bundle, Tar or 
 CS2_CFG_URL=""          (HTTP/HTTPS URL to fetch a Tar Gzip bundle, Tar or Zip archive of configuration files/mods)
 ```
 
-See [examples](https://github.com/joedwards32/CS2/blob/main/examples/cs2.cfg.tgz) for a correctly formatted Tar Gzip customisation bundle, the same format applies to all archive types.
-
+See [examples](https://github.com/rachzy/CS2/blob/main/examples/cs2.cfg.tgz) for a correctly formatted Tar Gzip customisation bundle, the same format applies to all archive types.
 
 # Credits
 
