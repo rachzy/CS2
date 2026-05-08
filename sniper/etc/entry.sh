@@ -15,14 +15,17 @@ if [[ $DEBUG -eq 2 ]] || [[ $DEBUG -eq 3 ]]; then
     CS2_LOG_ITEMS=1
 fi
 
-# Create App Dir
-mkdir -p "${STEAMAPPDIR}" || true
-
-# Download Updates
 if [[ "$STEAMAPPVALIDATE" -eq 1 ]]; then
     VALIDATE="validate"
 else
     VALIDATE=""
+fi
+
+# Check if CS2 installation exists
+if [[ ! -f "${STEAMAPPDIR}/game/cs2.sh" ]]; then
+    echo "CS2 installation not found; forcing validation of initial install"
+    mkdir -p "${STEAMAPPDIR}" || true
+    VALIDATE="validate"
 fi
 
 ## SteamCMD can fail to download
@@ -31,13 +34,6 @@ MAX_ATTEMPTS=3
 attempt=0
 while [[ $steamcmd_rc != 0 ]] && [[ $attempt -lt $MAX_ATTEMPTS ]]; do
     ((attempt+=1))
-    if [[ $attempt -gt 1 ]]; then
-        echo "Retrying SteamCMD, attempt ${attempt}"
-        # Stale appmanifest data can lead for HTTP 401 errors when requesting old
-        # files from SteamPipe CDN
-        echo "Removing steamapps (appmanifest data)..."
-        rm -rf "${STEAMAPPDIR}/steamapps"
-    fi
     eval bash "${STEAMCMDDIR}/steamcmd.sh" "${STEAMCMD_SPEW}"\
                                 +force_install_dir "${STEAMAPPDIR}" \
                                 +@bClientTryRequestManifestWithoutCode 1 \
