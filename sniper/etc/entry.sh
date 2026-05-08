@@ -28,6 +28,14 @@ if [[ ! -f "${STEAMAPPDIR}/game/cs2.sh" ]]; then
     VALIDATE="validate"
 fi
 
+GAMEDIR="${STEAMAPPDIR}"
+
+if [[ $VALIDATE == "validate" ]]; then
+    GAMEDIR="${INSTALLATIONDIR}"
+fi
+
+echo "Installing at: ${GAMEDIR}"
+
 ## SteamCMD can fail to download
 ## Retry logic
 MAX_ATTEMPTS=3
@@ -35,7 +43,7 @@ attempt=0
 while [[ $steamcmd_rc != 0 ]] && [[ $attempt -lt $MAX_ATTEMPTS ]]; do
     ((attempt+=1))
     eval bash "${STEAMCMDDIR}/steamcmd.sh" "${STEAMCMD_SPEW}"\
-                                +force_install_dir "${STEAMAPPDIR}" \
+                                +force_install_dir "${GAMEDIR}" \
                                 +@bClientTryRequestManifestWithoutCode 1 \
 				+login anonymous \
 				+app_update "${STEAMAPPID}" "${VALIDATE}"\
