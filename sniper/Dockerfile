@@ -109,12 +109,12 @@ RUN set -x \
         && chown -R "${PUID}:${PGID}" "${STEAMAPPDIR}" \
         && chmod 0777 "${STEAMAPPDIR}"
 
-# Switch to user
-USER ${PUID}:${PGID}
-
 # Create shared directory
 RUN mkdir -p /home/steam/cs2-dedicated /home/steam/cs2-shared && \
     chown 1000:1000 /home/steam/cs2-dedicated /home/steam/cs2-shared
+
+# Switch to user
+USER ${PUID}:${PGID}
 
 WORKDIR ${HOMEDIR}
 
