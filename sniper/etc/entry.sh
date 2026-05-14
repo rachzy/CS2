@@ -42,6 +42,12 @@ MAX_ATTEMPTS=3
 attempt=0
 while [[ $steamcmd_rc != 0 ]] && [[ $attempt -lt $MAX_ATTEMPTS ]]; do
     ((attempt+=1))
+    if [[ $attempt -gt 1 ]]; then
+        echo "Retrying SteamCMD, attempt ${attempt}"
+ 
+        echo "Removing steamapps/appmanifest_730.acf..."
+        rm -rf "${STEAMAPPDIR}/steamapps/appmanifest_730.acf"
+    fi
     eval bash "${STEAMCMDDIR}/steamcmd.sh" "${STEAMCMD_SPEW}"\
                                 +force_install_dir "${GAMEDIR}" \
                                 +@bClientTryRequestManifestWithoutCode 1 \
