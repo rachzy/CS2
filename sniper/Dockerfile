@@ -33,6 +33,7 @@ RUN set -x \
                 libicu-dev \
                 unzip \
 		jq \
+                gettext-base \
         && useradd -u "${PUID}" -m "${USER}" \
 	&& mkdir -p "${STEAMCMDDIR}" \
 	# Add entry script
@@ -110,6 +111,10 @@ RUN set -x \
 
 # Switch to user
 USER ${PUID}:${PGID}
+
+# Create shared directory
+RUN mkdir -p /home/steam/cs2-dedicated /home/steam/cs2-shared && \
+    chown 1000:1000 /home/steam/cs2-dedicated /home/steam/cs2-shared
 
 WORKDIR ${HOMEDIR}
 

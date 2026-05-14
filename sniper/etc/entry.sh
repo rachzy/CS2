@@ -21,6 +21,150 @@ else
     VALIDATE=""
 fi
 
+## Adding shared data
+
+ACTIVE_DIR="${STEAMAPPDIR:-/home/steam/cs2-dedicated}"
+SHARED_DIR="${CS2_SHARED_DIR:-/home/steam/cs2-shared}"
+CONTAINER_USER="${CS2_CONTAINER_USER:-steam}"
+CONTAINER_OWNER="${CS2_CONTAINER_OWNER:-1000:1000}"
+
+## Utils
+directory_has_entries() {
+    local directory="$1"
+    local entries
+
+    shopt -s nullglob dotglob
+    entries=("${directory}"/*)
+    shopt -u nullglob dotglob
+
+    [ "${#entries[@]}" -gt 0 ]
+}
+
+has_shared_data() {
+    [ -d "${SHARED_DIR}" ] && [ -d "${SHARED_DIR}/game" ] && directory_has_entries "${SHARED_DIR}/game"
+}
+
+copy_from_shared() {
+    local relative_path="$1"
+    local source="${SHARED_DIR}${relative_path}"
+    local target="${ACTIVE_DIR}${relative_path}"
+
+    if [ ! -e "${source}" ] && [ ! -L "${source}" ]; then
+        echo "[wrapper] Shared path missing, skipping copy: ${relative_path}"
+        return
+    fi
+
+    mkdir -p "$(dirname "${target}")"
+    rm -rf "${target}"
+    cp -a "${source}" "${target}"
+}
+
+link_from_shared() {
+    local relative_path="$1"
+    local source="${SHARED_DIR}${relative_path}"
+    local target="${ACTIVE_DIR}${relative_path}"
+
+    if [ ! -e "${source}" ] && [ ! -L "${source}" ]; then
+        echo "[wrapper] Shared path missing, skipping link: ${relative_path}"
+        return
+    fi
+
+    if [ -d "${source}" ] && [ ! -L "${source}" ]; then
+        link_directory_contents_from_shared "${relative_path}"
+        return
+    fi
+
+    mkdir -p "$(dirname "${target}")"
+    rm -rf "${target}"
+    ln -s "${source}" "${target}"
+}
+
+link_directory_contents_from_shared() {
+    local relative_path="$1"
+    local source_directory="${SHARED_DIR}${relative_path}"
+    local target_directory="${ACTIVE_DIR}${relative_path}"
+    local source_path
+    local nested_relative_path
+    local target_path
+
+    rm -rf "${target_directory}"
+    mkdir -p "${target_directory}"
+
+    while IFS= read -r -d '' source_path; do
+        nested_relative_path="${source_path#${SHARED_DIR}}"
+        target_path="${ACTIVE_DIR}${nested_relative_path}"
+
+        if [ -d "${source_path}" ] && [ ! -L "${source_path}" ]; then
+            mkdir -p "${target_path}"
+        else
+            mkdir -p "$(dirname "${target_path}")"
+            rm -rf "${target_path}"
+            ln -s "${source_path}" "${target_path}"
+        fi
+    done < <(find "${source_directory}" -mindepth 1 -print0)
+}
+
+link_shared_glob() {
+    local pattern="$1"
+    local source
+    local relative_path
+
+    shopt -s nullglob
+    for source in ${SHARED_DIR}${pattern}; do
+        relative_path="${source#${SHARED_DIR}}"
+        link_from_shared "${relative_path}"
+    done
+    shopt -u nullglob
+}
+
+echo "[wrapper] Validating shared CS2 data..."
+
+if has_shared_data; then
+    echo "[wrapper] Shared CS2 data is present, preparing server directories..."
+    echo "[wrapper] Preparing CS2 server directories..."
+    mkdir -p "${ACTIVE_DIR}"
+    chown "${CONTAINER_OWNER}" "${ACTIVE_DIR}" "${SHARED_DIR}"
+
+    echo "[wrapper] Creating per-server Steam working directories..."
+    mkdir -p \
+        "${ACTIVE_DIR}/steamapps/downloading" \
+        "${ACTIVE_DIR}/steamapps/temp"
+
+    echo "[wrapper] Copying per-server CS2 files from shared data..."
+    copy_from_shared "/steamapps/appmanifest_730.acf"
+    copy_from_shared "/game/csgo/cfg"
+    copy_from_shared "/game/csgo/gameinfo.gi"
+    copy_from_shared "/game/csgo_lv/gameinfo_branchspecific.gi"
+    copy_from_shared "/game/csgo_lv/gameinfo.gi"
+    copy_from_shared "/game/cs2.sh"
+    copy_from_shared "/game/bin/linuxsteamrt64/cs2"
+
+    echo "[wrapper] Linking shared CS2 assets..."
+    link_from_shared "/installscript.vdf"
+    link_from_shared "/game/bin/built_from_cl.txt"
+    link_from_shared "/game/bin/content_built_from_cl.txt"
+    link_shared_glob "/game/bin/linuxsteamrt64/*.flt"
+    link_shared_glob "/game/bin/linuxsteamrt64/*.so*"
+    link_from_shared "/game/bin/linuxsteamrt64/steam_appid.txt"
+    link_from_shared "/game/bin/win64"
+    link_from_shared "/game/core"
+    link_from_shared "/game/csgo/bin"
+    link_from_shared "/game/csgo/resource"
+    link_from_shared "/game/csgo/panorama"
+    link_from_shared "/game/csgo/maps"
+    link_shared_glob "/game/csgo/*.vpk"
+    link_from_shared "/game/csgo/steam.inf"
+    link_from_shared "/game/csgo/gameinfo_branchspecific.gi"
+    link_from_shared "/game/csgo_community_addons"
+    link_from_shared "/game/csgo_core"
+    link_from_shared "/game/csgo_imported"
+    link_from_shared "/game/thirdpartylegalnotices.txt"
+
+    chown -R "${CONTAINER_OWNER}" "${ACTIVE_DIR}"
+else
+    echo "[wrapper] Shared CS2 data is missing, running installation container..."
+fi
+
 # Check if CS2 installation exists
 if [[ ! -f "${STEAMAPPDIR}/game/cs2.sh" ]]; then
     echo "CS2 installation not found; forcing validation of initial install"
