@@ -179,6 +179,9 @@ if [[ $VALIDATE == "validate" ]]; then
 fi
 
 echo "Installing at: ${GAMEDIR}"
+.
+mkdir -p "${GAMEDIR}"
+chown "${CONTAINER_OWNER}" "${GAMEDIR}" 2>/dev/null || true
 
 ## SteamCMD can fail to download
 ## Retry logic
@@ -192,12 +195,12 @@ while [[ $steamcmd_rc != 0 ]] && [[ $attempt -lt $MAX_ATTEMPTS ]]; do
         echo "Removing steamapps/appmanifest_730.acf..."
         rm -rf "${STEAMAPPDIR}/steamapps/appmanifest_730.acf"
     fi
-    eval bash "${STEAMCMDDIR}/steamcmd.sh" "${STEAMCMD_SPEW}"\
+    eval gosu "${CONTAINER_USER}" bash "${STEAMCMDDIR}/steamcmd.sh" "${STEAMCMD_SPEW}"\
                                 +force_install_dir "${GAMEDIR}" \
                                 +@bClientTryRequestManifestWithoutCode 1 \
-				+login anonymous \
-				+app_update "${STEAMAPPID}" "${VALIDATE}"\
-				+quit
+			+login anonymous \
+			+app_update "${STEAMAPPID}" "${VALIDATE}"\
+			+quit
     steamcmd_rc=$?
 done
 
@@ -213,8 +216,9 @@ if [[ $VALIDATE == "validate" ]] && [[ $STOPAFTERVALIDATION -eq 1 ]]; then
 fi
 
 # FIX: steamclient.so fix
-mkdir -p ~/.steam/sdk64
-ln -sfT ${STEAMCMDDIR}/linux64/steamclient.so ~/.steam/sdk64/steamclient.so
+STEAM_HOME=$(getent passwd "${CONTAINER_USER}" | cut -d: -f6)
+mkdir -p "${STEAM_HOME}/.steam/sdk64"
+ln -sfT "${STEAMCMDDIR}/linux64/steamclient.so" "${STEAM_HOME}/.steam/sdk64/steamclient.so"
 
 # Install server.cfg
 mkdir -p $STEAMAPPDIR/game/csgo/cfg
@@ -367,7 +371,7 @@ if [[ ! -z $CS2_RCON_PORT ]]; then
 fi
 
 echo "Starting CS2 Dedicated Server"
-eval "./cs2.sh" -dedicated \
+eval exec gosu "${CONTAINER_USER}" "./cs2.sh" -dedicated \
         "${CS2_IP_ARGS}" -port "${CS2_PORT}" \
         -console \
         -usercon \

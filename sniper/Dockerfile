@@ -34,6 +34,7 @@ RUN set -x \
                 unzip \
 		jq \
                 gettext-base \
+                gosu \
         && useradd -u "${PUID}" -m "${USER}" \
 	&& mkdir -p "${STEAMCMDDIR}" \
 	# Add entry script
@@ -113,10 +114,11 @@ RUN set -x \
 RUN mkdir -p /home/steam/cs2-dedicated /home/steam/cs2-shared && \
     chown 1000:1000 /home/steam/cs2-dedicated /home/steam/cs2-shared
 
-# Switch to user
-USER ${PUID}:${PGID}
-
 WORKDIR ${HOMEDIR}
+
+# entry.sh runs as root so it can fix ownership of mounted volumes,
+# then drops to CONTAINER_USER via gosu before launching steamcmd and the server.
+USER root
 
 CMD ["bash", "entry.sh"]
 
