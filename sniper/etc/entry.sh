@@ -195,7 +195,7 @@ while [[ $steamcmd_rc != 0 ]] && [[ $attempt -lt $MAX_ATTEMPTS ]]; do
         echo "Removing steamapps/appmanifest_730.acf..."
         rm -rf "${STEAMAPPDIR}/steamapps/appmanifest_730.acf"
     fi
-    eval gosu "${CONTAINER_USER}" bash "${STEAMCMDDIR}/steamcmd.sh" "${STEAMCMD_SPEW}"\
+    eval sudo bash "${STEAMCMDDIR}/steamcmd.sh" "${STEAMCMD_SPEW}"\
                                 +force_install_dir "${GAMEDIR}" \
                                 +@bClientTryRequestManifestWithoutCode 1 \
 			+login anonymous \
