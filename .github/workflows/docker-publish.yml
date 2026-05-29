@@ -71,6 +71,7 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: latest=false
           tags: |
             type=raw,value=latest-pelican,enable={{is_default_branch}}
             type=semver,pattern={{version}}-pelican
