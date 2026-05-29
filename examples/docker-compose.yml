@@ -1,13 +1,13 @@
 services:
   cs2-server:
-    image: joedwards32/cs2
+    image: rachzy/cs2
     container_name: cs2-dedicated
     environment:
       # Server configuration
       - SRCDS_TOKEN                 # Game Server Token from https://steamcommunity.com/dev/managegameservers
       - DEBUG=0                     # (0 - off, 1 - steamcmd, 2 - cs2, 3 - all)
       - STEAMAPPVALIDATE=0          # (0 - no validation, 1 - enable validation)
-      - STOPAFTERVALIDATION=0    # (0 - no restart after validation, 1 - restart after validation)
+      - STOPAFTERVALIDATION=0       # (0 - no restart after validation, 1 - restart after validation)
       - CS2_SERVERNAME=changeme     # (Set the visible name for your private server.)
       - CS2_CHEATS=0                # (0 - disable cheats, 1 - enable cheats)
       - CS2_PORT=27015              # (CS2 server listen port tcp_udp)
@@ -46,7 +46,9 @@ services:
       - CS2_LOG_DETAIL=0            # Combat damage logging: (0=disabled, 1=enemy, 2=friendly, 3=all)
       - CS2_LOG_ITEMS=0             # Turns item logging on/off: (0=off, 1=on)
     volumes:
-      - cs2:/home/steam/cs2-dedicated/  # Persistent data volume mount point inside container
+      - cs2:/home/steam/cs2-shared/ # Persistent data volume mount point inside container
+    networks:
+      - cs2_shared                  # Network for shared data
     ports:
       - "27015:27015/tcp"           # TCP
       - "27015:27015/udp"           # UDP
@@ -55,3 +57,7 @@ services:
     tty: true # Add local console for docker attach, docker attach --sig-proxy=false cs2-dedicated
 volumes:
   cs2:
+    name: cs2-server
+networks:
+  cs2_shared:
+    external: true
