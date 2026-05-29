@@ -175,7 +175,10 @@ fi
 GAMEDIR="${STEAMAPPDIR}"
 
 if [[ $VALIDATE == "validate" ]]; then
+    echo "Validation detected, switching to installation directory."
     GAMEDIR="${INSTALLATIONDIR}"
+else
+    echo "No validation detected, staying in default directory."
 fi
 
 echo "Installing at: ${GAMEDIR}"
@@ -371,7 +374,7 @@ if [[ ! -z $CS2_RCON_PORT ]]; then
 fi
 
 echo "Starting CS2 Dedicated Server"
-eval exec gosu "${CONTAINER_USER}" "./cs2.sh" -dedicated \
+eval "./cs2.sh" -dedicated \
         "${CS2_IP_ARGS}" -port "${CS2_PORT}" \
         -console \
         -usercon \
