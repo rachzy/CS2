@@ -196,7 +196,7 @@ while [[ $steamcmd_rc != 0 ]] && [[ $attempt -lt $MAX_ATTEMPTS ]]; do
         echo "Retrying SteamCMD, attempt ${attempt}"
  
         echo "Removing steamapps/appmanifest_730.acf..."
-        rm -rf "${STEAMAPPDIR}/steamapps/appmanifest_730.acf"
+        rm -rf "${GAMEDIR}/steamapps/appmanifest_730.acf"
     fi
     eval bash "${STEAMCMDDIR}/steamcmd.sh" "${STEAMCMD_SPEW}"\
                                 +force_install_dir "${GAMEDIR}" \
