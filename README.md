@@ -45,6 +45,26 @@ You must have at least **60GB** of free disk space! See [System Requirements](./
 
 **The container will automatically update the game on startup, so if there is a game update just restart the container.**
 
+## Handling game updates
+
+Due to the shared-by-default nature of this image, game updates won't write in the shared volume by default. This is made with the intention of avoiding one single container update cause multiple other outdated containers to use an updated version of the game, which would certainly cause crashes.
+
+When a container running SteamCMD finds an update, there are 2 possible scenarios:
+- **If `STEAMAPPVALIDATE` is set to 0**: It'll update only the files of that specific container, leaving `cs2-shared` untouched. Other containers will have to self-update again if created/restarted in the future.
+- **If `STEAMAPPVALIDATE` is set to 1**: It'll use the `cs2-shared` volume as the path target for the update, which means that all the other containers will also be updated.
+
+### What's recommended
+
+1. Always let `STEAMAPPVALIDATE=0` and `STOPAFTERVALIDATION=1` for all the containers
+2. Eventually, when running/restarting containers, check in the logs if SteamCMD found an update for the game
+3. If it did, stop all the running containers
+4. Re-create or spawn a new container with `STEAMAPPVALIDATE=1` (this will update all containers at once)
+5. Wait until it finishes updating (it'll stop the container by itself, as long as `STOPAFTERVALIDATION` is set to `1`)
+6. Delete the container and set `STEAMAPPVALIDATE` back to `0` in your docker compose file
+7. Run all the containers again
+
+I'm still thinking about a way to automate this without putting all the other containers health in risk, but for now, that's the best approach.
+
 # Configuration
 
 ## System Requirements
